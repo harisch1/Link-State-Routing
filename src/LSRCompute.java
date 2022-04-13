@@ -9,15 +9,15 @@ import java.io.IOException;
 
 public class LSRCompute {
 
-    static int table[][];
-    static char nodes[];
-    static boolean SSmode = false;
-    static int shortest[];
-    static int previous[];
-    static boolean visited[];
-    static int source;
-    static int closest;
-    static Stack<Integer> path;
+    static int table[][]; // stores the adjacency matrix
+    static char nodes[]; // for mapping nodes back to respective characters
+    static boolean SSmode = false; // Single step flag
+    static int shortest[]; // Distance of the shortest patch for each node from the source
+    static int previous[]; // Previous node in the shortest path
+    static boolean visited[]; // Check if a node has been visited
+    static int source; // Source node
+    static int closest; // The new discovered node
+    static Stack<Integer> path; // Trace of the shortest path
 
     public static void main(String[] args) throws Exception {
 
@@ -33,10 +33,10 @@ public class LSRCompute {
 
     }
 
+    // For file parsing and matrix initialization
     static void buildMatrix(String filePath) {
         try {
             // Read user input
-
             BufferedReader objReader = new BufferedReader(new FileReader(filePath));
             String input = new String();
             String strCurrentLine;
@@ -52,6 +52,7 @@ public class LSRCompute {
 
             String[] inputArray = input.split("-", len);
 
+            // Construct an adjutancy matrix for an easier computation of router path
             for (String s : inputArray) {
                 s = s.replace("-", "");
                 String[] indNode = s.split(" ", len);
@@ -71,6 +72,7 @@ public class LSRCompute {
                 nodes[c] = s.charAt(0);
             }
 
+            // initialize the nodes without direct connection to a large number
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++)
                     if (table[i][j] == 0)
@@ -82,12 +84,14 @@ public class LSRCompute {
         }
     }
 
+    // Dijkstra's algorithm for finding shortest path
     public static void dijkstraAlgorithm(int[][] matrix) {
         visited = new boolean[nodes.length];
         shortest = new int[nodes.length];
         previous = new int[nodes.length];
         shortest = matrix[source];
 
+        // initializations
         for (int i = 0; i < nodes.length; i++) {
             visited[i] = false;
             previous[i] = source;
@@ -95,11 +99,10 @@ public class LSRCompute {
         visited[source] = true;
         shortest[source] = 0;
 
-        int Dist;
+        int Dist; // new distance from the source to the destination
 
         for (int num = 0; num < nodes.length - 1; num++) {
 
-            // shorter = shorterPath();
             int shorter = 1000;
             for (int i = 0; i < shortest.length; i++) {
                 if (!visited[i] && shortest[i] < shorter) {
@@ -110,52 +113,61 @@ public class LSRCompute {
             visited[closest] = true;
             for (int j = 0; j < nodes.length; j++) {
                 if (matrix[closest][j] != source && !visited[j]) {
-
                     Dist = matrix[closest][j] + shorter;
                     if (Dist < shortest[j]) {
                         shortest[j] = Dist;
                         previous[j] = closest;
-
                     }
-
                 }
-
             }
-            // Print if single step mode is on
+            /*
+             * Print if single step mode is on
+             * when a new node is found
+             * it runs only when the new node has been visited to avoid any repetitions.
+             */
             if (SSmode && visited[closest]) {
-                path = new Stack<Integer>();
-                System.out.print("Found " + nodes[closest] + ": ");
-                try {
-
-                    int current = closest;
-                    path.push(current);
-                    // while (previous[current] != source && current != source) {
-                    for (int i = 0; i < previous.length - 1; i++) {
-                        if (current == source)
-                            break;
-                        current = previous[current];
-                        path.push(current);
-                    }
-                    while (path.size() > 1) {
-                        System.out.print(nodes[path.pop()] + ">");
-                    }
-                    System.out.print(nodes[path.pop()] + " Cost = " + shortest[closest]);
-                    pressEnterKeyToContinue();
-
-                } catch (Exception e) {
-
-                }
+                SingleStepPrint();
             }
 
         }
     }
 
+    // Uses a stack for the trace of each path
+    public static void SingleStepPrint() {
+        path = new Stack<Integer>();
+        System.out.print("Found " + nodes[closest] + ": ");
+        try {
+
+            int current = closest;
+            path.push(current);
+            for (int i = 0; i < previous.length - 1; i++) {
+                if (current == source)
+                    break;
+                current = previous[current];
+                path.push(current);
+            }
+            while (path.size() > 1) {
+                System.out.print(nodes[path.pop()] + ">");
+            }
+            System.out.print(nodes[path.pop()] + " Cost = " + shortest[closest]);
+            pressEnterKeyToContinue();
+
+        } catch (Exception e) {
+            System.out.print(e);
+        }
+    }
+
+    // Awaits user input until the next line is displayed
     public static void pressEnterKeyToContinue() {
         System.out.println("\t\t [Press Enter key to continue...]");
         Scanner s = new Scanner(System.in);
         s.nextLine();
     }
 
+    /*
+     * For printing the final path using a stack to trace back the path using
+     * previous node array
+     */
     public static void printTable() {
         int j;
         System.out.println();
@@ -177,7 +189,6 @@ public class LSRCompute {
                         System.out.print(nodes[path.pop()] + ">");
                     }
                     System.out.println(nodes[path.pop()] + " Cost = " + shortest[i]);
-                    // System.out.println("\n");
                 }
 
             } catch (Exception e) {
