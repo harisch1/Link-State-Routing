@@ -1,5 +1,5 @@
 
-// import java.io.File;
+// Compiled using JDK-18
 import java.util.Scanner;
 import java.util.Stack;
 import java.io.BufferedReader;
@@ -161,6 +161,7 @@ public class LSRCompute {
         System.out.println("\t\t [Press Enter key to continue...]");
         Scanner s = new Scanner(System.in);
         s.nextLine();
+        s.close();
     }
 
     /*
